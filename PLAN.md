@@ -49,6 +49,7 @@ Implemented on 22 October 2026. See `README.md` for local commands, content upda
 - Both versions share optimized image assets; relative paths also support repository subpaths. Each page has its own canonical URL and reciprocal `hreflang` metadata.
 - Romanian captions are maintained in `data/artworks.ro.json`, keyed by source filename. The build rejects missing translations. Add a Romanian entry whenever adding a new artwork.
 - Adjusted Romanian heading sizes for the longer wording and allowed the mobile navigation to wrap.
+- Refined the EN/RO switcher after a Firefox mobile report: equal-width language cells with explicit shared alignment, line height and spacing, and a filled high-contrast selected state. Verification uses automated checks; Firefox on the actual Pixel device still needs confirmation after deployment.
 - Extended validation and interaction checks to cover both languages, translated captions/counts and Romanian image paths.
 - `npm run build` and `npm run check` passed for both languages, including translation coverage, metadata, asset links and gallery interactions. No visual browser or real-device testing was performed for this change.
 
