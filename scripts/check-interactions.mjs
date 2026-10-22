@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
-const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
+for (const language of ['en', 'ro']) {
+const html = await readFile(new URL(language === 'ro' ? '../dist/ro/index.html' : '../dist/index.html', import.meta.url), 'utf8');
 class Element {
   constructor(dataset = {}) { this.dataset = dataset; this.events = {}; this.attributes = {}; this.hidden = false; this.classList = { toggle() {}, add() {}, remove() {} }; }
   addEventListener(type, action) { this.events[type] = action; }
@@ -15,7 +16,7 @@ class Element {
 const decode = value => value.replaceAll('&amp;', '&').replaceAll('&#39;', "'").replaceAll('&quot;', '"');
 const buttons = [];
 const cards = [...html.matchAll(/<article class="art-card"([^>]+)>/g)].map(match => {
-  const data = Object.fromEntries([...match[1].matchAll(/data-([\w-]+)="([^"]*)"/g)].map(m => [m[1], decode(m[2])]));
+  const data = Object.fromEntries([...match[1].matchAll(/data-([\w-]+)="([^"]*)"/g)].map(m => [m[1].replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()), decode(m[2])]));
   const element = new Element(data);
   element.button = new Element({ artId: data.id });
   element.img = { alt: data.title };
@@ -26,10 +27,11 @@ const cards = [...html.matchAll(/<article class="art-card"([^>]+)>/g)].map(match
 const filters = ['All works', 'Landscapes', 'Still life', 'Places', 'Figures & portraits', 'Sacred & symbolic'].map(category => new Element({ category }));
 const nodes = Object.fromEntries(['load-more', 'results-count', 'artwork-dialog', 'viewer-image', 'viewer-title', 'viewer-category', 'viewer-file', 'viewer-position', 'viewer-close', 'viewer-prev', 'viewer-next'].map(id => ['#' + id, new Element()]));
 const hero = new Element({ artId: '0' });
-const document = { body: new Element(), querySelector: query => nodes[query], querySelectorAll: query => ({ '.art-card': cards, '.filter': filters, '[data-art-id]': [hero, ...buttons] })[query] };
+const document = { documentElement: { lang: language }, body: new Element(), querySelector: query => nodes[query], querySelectorAll: query => ({ '.art-card': cards, '.filter': filters, '[data-art-id]': [hero, ...buttons] })[query] };
 runInNewContext(await readFile(new URL('../app.js', import.meta.url), 'utf8'), { document, Set });
 const visible = () => cards.filter(card => !card.hidden);
 assert.equal(visible().length, 18);
+assert.equal(nodes['#results-count'].textContent, language === 'ro' ? `18 din ${cards.length} imagini` : `18 of ${cards.length} images`);
 nodes['#load-more'].fire('click');
 assert.equal(visible().length, 36);
 assert(cards[18].button.focused);
@@ -43,6 +45,8 @@ const stillLifeCount = visible().length;
 hero.fire('click');
 assert.equal(nodes['#artwork-dialog'].open, true);
 assert.equal(nodes['#viewer-title'].textContent, cards[0].dataset.title);
+assert.equal(nodes['#viewer-category'].textContent, cards[0].dataset.categoryLabel);
+assert.equal(nodes['#viewer-file'].href, cards[0].dataset.full);
 nodes['#viewer-next'].fire('click');
 assert.equal(nodes['#viewer-title'].textContent, cards[1].dataset.title);
 nodes['#artwork-dialog'].fire('keydown', { key: 'ArrowLeft', preventDefault() {} });
@@ -59,4 +63,5 @@ assert.equal(nodes['#viewer-title'].textContent, cards.filter(card => card.datas
 nodes['#viewer-close'].fire('click');
 filters[0].fire('click');
 assert.equal(visible().length, 18);
-console.log('Passed gallery pagination, every filter, viewer navigation, keyboard arrows, touch swipe, focus restoration, and hero/filter isolation checks.');
+console.log(`Passed ${language} gallery pagination, every filter, localized captions and counts, viewer navigation, keyboard arrows, touch swipe, focus restoration, and hero/filter isolation checks.`);
+}

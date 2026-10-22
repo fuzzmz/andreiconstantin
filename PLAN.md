@@ -42,7 +42,17 @@ Implemented on 22 October 2026. See `README.md` for local commands, content upda
 - HTTP preview checks returned 200 for the page, stylesheet, script, artwork and résumé; missing resources returned 404.
 - Dependency installation audit: zero reported vulnerabilities.
 
-### Remaining launch steps
+### Romanian version
+
+- Added a complete static Romanian page at `/ro/` and reciprocal EN/RO header links. English remains at `/`.
+- Translated page content, all 107 artwork captions, categories, accessibility labels, result counts and viewer controls. The supplied résumé remains in English and its Romanian link says so.
+- Both versions share optimized image assets; relative paths also support repository subpaths. Each page has its own canonical URL and reciprocal `hreflang` metadata.
+- Romanian captions are maintained in `data/artworks.ro.json`, keyed by source filename. The build rejects missing translations. Add a Romanian entry whenever adding a new artwork.
+- Adjusted Romanian heading sizes for the longer wording and allowed the mobile navigation to wrap.
+- Extended validation and interaction checks to cover both languages, translated captions/counts and Romanian image paths.
+- `npm run build` and `npm run check` passed for both languages, including translation coverage, metadata, asset links and gallery interactions. No visual browser or real-device testing was performed for this change.
+
+### Launch configuration
 
 - Git remote `origin` is configured as `https://github.com/fuzzmz/andreiconstantin.git`, and the local branch is `main`. Source files still need to be committed and pushed.
 - Enable GitHub Actions as the Pages publishing source and run the included deployment workflow.

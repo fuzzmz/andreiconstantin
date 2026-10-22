@@ -32,4 +32,28 @@ for (const match of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'HTML IDs must be unique');
 for (const match of html.matchAll(/href="#([^"]+)"/g)) assert(ids.includes(match[1]), `Anchor exists: ${match[1]}`);
+const roHtml = await readFile(resolve(root, 'dist/ro/index.html'), 'utf8');
+const roTitles = JSON.parse(await readFile(resolve(root, 'data/artworks.ro.json'), 'utf8'));
+assert.equal(Object.keys(roTitles).length, artworks.length, 'Romanian translations must cover the catalogue');
+assert.equal((roHtml.match(/class="art-card"/g) || []).length, artworks.length);
+assert(!/__\w+__/.test(roHtml), 'Romanian template placeholders must be replaced');
+assert(roHtml.includes('<html lang="ro">'));
+assert(roHtml.includes('rel="canonical" href="https://andreiconstantin.com/ro/"'));
+assert(html.includes('href="ro/" lang="ro"'));
+assert(roHtml.includes('href="../" lang="en"'));
+const escape = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+for (const art of artworks) {
+  assert(roTitles[art.source]?.trim(), `Romanian title exists: ${art.source}`);
+  assert(roHtml.includes(`data-title="${escape(roTitles[art.source])}"`));
+}
+for (const match of roHtml.matchAll(/(?:src|href|data-full)="([^"#]+)"/g)) {
+  const url = match[1];
+  if (/^(?:https?:|mailto:|tel:|data:)/.test(url)) continue;
+  assert(!url.startsWith('/'), 'Romanian asset paths must support a GitHub Pages subpath');
+  await access(resolve(root, 'dist/ro', url));
+}
+for (const page of [html, roHtml]) {
+  for (const language of ['en', 'ro', 'x-default']) assert(page.includes(`hreflang="${language}"`));
+}
 console.log(`Validated ${artworks.length} photographs, image formats, source coverage, local links, anchors and template output. Optimized images: ${(bytes / 1024 / 1024).toFixed(1)} MB.`);
+console.log('Validated Romanian translations, page metadata, language links and nested-route image paths.');

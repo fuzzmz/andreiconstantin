@@ -8,6 +8,7 @@ const title = document.querySelector('#viewer-title');
 const category = document.querySelector('#viewer-category');
 const fileLink = document.querySelector('#viewer-file');
 const position = document.querySelector('#viewer-position');
+const romanian = document.documentElement.lang === 'ro';
 let selected = cards;
 let viewerSelection = cards;
 let visibleCount = 18;
@@ -18,7 +19,9 @@ function renderCollection() {
   const visible = new Set(selected.slice(0, visibleCount));
   cards.forEach(card => { card.hidden = !visible.has(card); });
   loadMore.hidden = visibleCount >= selected.length;
-  results.textContent = `${Math.min(visibleCount, selected.length)} of ${selected.length} images`;
+  results.textContent = romanian
+    ? `${Math.min(visibleCount, selected.length)} din ${selected.length} imagini`
+    : `${Math.min(visibleCount, selected.length)} of ${selected.length} images`;
 }
 filters.forEach(button => button.addEventListener('click', () => {
   filters.forEach(filter => {
@@ -43,7 +46,7 @@ function showArtwork() {
   image.src = card.dataset.full;
   image.alt = thumbnail.alt;
   title.textContent = card.dataset.title;
-  category.textContent = card.dataset.category;
+  category.textContent = card.dataset.categoryLabel || card.dataset.category;
   position.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${viewerSelection.length}`;
   fileLink.href = card.dataset.full;
 }

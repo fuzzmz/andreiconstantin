@@ -2,6 +2,8 @@
 
 A responsive static gallery of Andrei Constantin’s paintings, built for GitHub Pages and a custom domain. Includes subject filters, a keyboard- and touch-accessible artwork viewer, biography, résumé and direct contact links. The gallery is generated into HTML so all artwork remains available when JavaScript is disabled.
 
+English is available at `/` and Romanian at `/ro/`, with an EN/RO switch in the header. Both versions work without JavaScript for reading and browsing, share the same optimized images, and have their own canonical URLs and language metadata. The original résumé image remains in English and is labelled accordingly on the Romanian page.
+
 ## Continue on another computer
 
 Install Node.js 22 or newer, clone the repository, then run:
@@ -21,9 +23,11 @@ Open `http://127.0.0.1:4173/`. The preview serves `dist/`; rebuild and refresh a
 
 - `PLAN.md`: implementation decisions, progress and handoff.
 - `index.html`: page template, biography, contact details and metadata.
+- `ro/index.html`: Romanian page template, translated navigation, biography, controls and metadata. Use `../` for shared asset links and keep section links as local fragments.
 - `styles.css`: layout, colours, typography and mobile styling.
 - `app.js`: subject filters, progressive collection reveal, artwork viewer, keyboard and swipe controls.
 - `data/artworks.json`: ordered `[source filename, descriptive caption, subject]` entries. The first image is featured in the hero.
+- `data/artworks.ro.json`: Romanian captions keyed by the exact original filename. Category translations live in `scripts/build.mjs`; internal category keys remain the same in both languages.
 - `assets/paintings/`: untouched original photographs and résumé.
 - `scripts/build.mjs`: reproducible image optimization and HTML generation.
 - `.github/workflows/pages.yml`: build, validate and deploy on pushes to `main`, or manually from Actions.
@@ -37,7 +41,7 @@ The two `.dng` RAW photographs are preserved but excluded because browsers canno
 ## Add or update artwork
 
 1. Add a JPEG or PNG to `assets/paintings/`.
-2. Add a matching entry to `data/artworks.json`. Use an existing subject: `Landscapes`, `Still life`, `Places`, `Figures & portraits`, or `Sacred & symbolic`.
+2. Add a matching entry to `data/artworks.json` and a Romanian caption in `data/artworks.ro.json`. Use an existing subject: `Landscapes`, `Still life`, `Places`, `Figures & portraits`, or `Sacred & symbolic`.
 3. Run `npm run build` and `npm run check`. The check requires every compatible original to have exactly one catalogue entry.
 4. Commit the original, catalogue edit and any code changes. Generated `dist/` stays untracked.
 
